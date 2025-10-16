@@ -2,7 +2,7 @@
  * Database Configuration
  */
 export const DB_CONFIG = {
-  MAX_CONNECTIONS: 5,
+  MAX_CONNECTIONS: 15,
   IDLE_TIMEOUT: 60,
   CONNECT_TIMEOUT: 30,
   MAX_LIFETIME: 1800,

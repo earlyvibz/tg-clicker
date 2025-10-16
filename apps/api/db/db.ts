@@ -11,7 +11,6 @@ const client = postgres(connectionString, {
   max: DB_CONFIG.MAX_CONNECTIONS,
   idle_timeout: DB_CONFIG.IDLE_TIMEOUT,
   connect_timeout: DB_CONFIG.CONNECT_TIMEOUT,
-  max_lifetime: DB_CONFIG.MAX_LIFETIME,
 });
 
 export const db = drizzle(client, { schema });
