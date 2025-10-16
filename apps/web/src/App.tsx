@@ -156,7 +156,6 @@ export function App() {
 
       <div className="header">
         <h1>🎮 Telegram Clicker</h1>
-        <p className="username">@{username}</p>
       </div>
 
       <div className="stats-grid">
