@@ -1,0 +1,98 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: click-postgres
+    environment:
+      POSTGRES_USER: clickuser
+      POSTGRES_PASSWORD: clickpass
+      POSTGRES_DB: clickdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clickuser -d clickdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - click-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: click-redis
+    command: redis-server --appendonly yes --appendfsync everysec
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - click-network
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: click-api
+    environment:
+      DATABASE_URL: postgresql://clickuser:clickpass@postgres:5432/clickdb
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - click-network
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: ./apps/bot
+      dockerfile: Dockerfile
+    container_name: click-bot
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      API_URL: http://api:3000
+      MINI_APP_URL: ${MINI_APP_URL}
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - api
+      - redis
+    networks:
+      - click-network
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: click-web
+    environment:
+      BUN_PUBLIC_API_URL: ${API_URL:-http://localhost:3000}
+      PORT: 5173
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks:
+      - click-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  click-network:
+    driver: bridge
