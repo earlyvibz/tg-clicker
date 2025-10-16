@@ -32,10 +32,6 @@ export function App() {
     tg.expand();
     tg.enableClosingConfirmation();
 
-    if (tg.themeParams?.bg_color) {
-      document.body.style.backgroundColor = tg.themeParams.bg_color;
-    }
-
     if (tg.initDataUnsafe?.user) {
       setTelegramId(tg.initDataUnsafe.user.id);
       setUsername(

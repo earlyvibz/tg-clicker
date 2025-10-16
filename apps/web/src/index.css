@@ -41,6 +41,7 @@ body {
   flex-direction: column;
   gap: 16px;
   max-width: 600px;
+  background-color: #000;
   margin: 0 auto;
 }
 
